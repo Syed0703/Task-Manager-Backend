@@ -1,9 +1,6 @@
 package com.example.task_manager.Entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class Task {
@@ -12,6 +9,11 @@ public class Task {
     private Long id;
     private String description;
     private boolean completed;
+
+    // Many tasks belong to one user
+    @ManyToOne
+    @JoinColumn(name = "userId")
+    private User user;
 
     // Default constructor (required by JPA)
     public Task(){}
