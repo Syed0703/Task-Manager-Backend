@@ -2,7 +2,9 @@ package com.example.task_manager.Controller;
 
 
 import com.example.task_manager.Entity.Task;
+import com.example.task_manager.Entity.User;
 import com.example.task_manager.Service.TaskService;
+import com.example.task_manager.Service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,23 +16,29 @@ import java.util.Optional;
 public class TaskController {
 
     private final TaskService taskService;
+    private final UserService userService;
 
-    public TaskController(TaskService taskService){
+    public TaskController(TaskService taskService, UserService userService){
         this.taskService = taskService;
+        this.userService = userService;
     }
 
-    // Create Task
-    @PostMapping
-    public ResponseEntity<Task> createTask(@RequestBody Task task){
-        Task savedTask = taskService.saveTask(task);
-        return ResponseEntity.status(201).body(savedTask);
+    // Create Task For a User
+    @PostMapping("/user/{userId}")
+    public ResponseEntity<Task> createTask(@PathVariable Long userId, @RequestBody Task task){
+        return userService.findUserById(userId)
+                .map(user -> {
+                    task.setUser(user);
+                    Task savedTask = taskService.saveTask(task);
+                    return ResponseEntity.status(201).body(savedTask);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     //Get All Tasks
     @GetMapping
     public ResponseEntity<List<Task>> getAllTasks(){
-        List<Task> tasks = taskService.getAllTasks();
-        return ResponseEntity.ok(tasks);
+        return ResponseEntity.ok(taskService.getAllTasks());
     }
 
 

@@ -1,5 +1,6 @@
 package com.example.task_manager.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -12,7 +13,8 @@ public class Task {
 
     // Many tasks belong to one user
     @ManyToOne
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "userId", nullable = false)
+    @JsonBackReference
     private User user;
 
     // Default constructor (required by JPA)
@@ -49,4 +51,11 @@ public class Task {
         this.completed = completed;
     }
 
+    public User getUSer() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }
