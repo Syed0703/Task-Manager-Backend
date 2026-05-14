@@ -1,8 +1,10 @@
 package com.example.task_manager.Controller;
 
 
+import com.example.task_manager.DTO.TaskDTO;
 import com.example.task_manager.Entity.Task;
 import com.example.task_manager.Entity.User;
+import com.example.task_manager.Mapper.DTOMapper;
 import com.example.task_manager.Service.TaskService;
 import com.example.task_manager.Service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +46,9 @@ public class TaskController {
 
     // Get Task By Id
     @GetMapping("/{id}")
-    public ResponseEntity<Task> getTaskById(@PathVariable Long id){
+    public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id){
         return taskService.getTaskById(id)
-                .map(ResponseEntity::ok)
+                .map(task -> ResponseEntity.ok(DTOMapper.toTaskDTO(task)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
