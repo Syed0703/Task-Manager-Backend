@@ -1,7 +1,11 @@
 package com.example.task_manager.DTO;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class TaskDTO {
     private Long id;
+
+    @NotBlank(message = "Description cannot be empty")
     private String description;
     private boolean completed;
     private Long userId;  // Reference To Owner

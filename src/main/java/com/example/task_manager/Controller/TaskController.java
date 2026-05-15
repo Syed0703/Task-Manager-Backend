@@ -7,11 +7,13 @@ import com.example.task_manager.Entity.User;
 import com.example.task_manager.Mapper.DTOMapper;
 import com.example.task_manager.Service.TaskService;
 import com.example.task_manager.Service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/tasks")
@@ -27,20 +29,29 @@ public class TaskController {
 
     // Create Task For a User
     @PostMapping("/user/{userId}")
-    public ResponseEntity<Task> createTask(@PathVariable Long userId, @RequestBody Task task){
-        return userService.findUserById(userId)
-                .map(user -> {
-                    task.setUser(user);
-                    Task savedTask = taskService.saveTask(task);
-                    return ResponseEntity.status(201).body(savedTask);
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<TaskDTO> createTask(@PathVariable Long userId, @Valid @RequestBody TaskDTO taskDTO){
+        Optional<User> user = userService.findUserById(userId);
+        if(user.isPresent()){
+            Task task = new Task();
+            task.setDescription(taskDTO.getDescription());
+            task.setCompleted(taskDTO.isCompleted());
+            task.setUser(user.get());
+
+            Task savedTask = taskService.saveTask(task);
+            return ResponseEntity.status(201).body(DTOMapper.toTaskDTO(savedTask));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     //Get All Tasks
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTasks(){
-        return ResponseEntity.ok(taskService.getAllTasks());
+    public ResponseEntity<List<TaskDTO>> getAllTasks(){
+        List<TaskDTO> tasks = taskService.getAllTasks()
+                .stream()
+                .map(DTOMapper::toTaskDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(tasks);
     }
 
 
@@ -55,8 +66,9 @@ public class TaskController {
 
     // Update Task
     @PutMapping("/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task updatedTask){
-        return taskService.updateTask(id, updatedTask)
+    public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @Valid @RequestBody TaskDTO updatedTaskDTO){
+        return taskService.updateTask(id, updatedTaskDTO)
+                .map(DTOMapper::toTaskDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -77,8 +89,11 @@ public class TaskController {
 
     // Get Task By Status
     @GetMapping("/completed/{status}")
-    public ResponseEntity<List<Task>> getTaskByStatus(@PathVariable boolean status){
-        List<Task> tasks = taskService.findByCompleted(status);
+    public ResponseEntity<List<TaskDTO>> getTaskByStatus(@PathVariable boolean status){
+        List<TaskDTO> tasks = taskService.findByCompleted(status)
+                .stream()
+                .map(DTOMapper::toTaskDTO)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(tasks);
     }
 }

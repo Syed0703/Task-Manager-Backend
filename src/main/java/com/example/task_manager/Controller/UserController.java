@@ -1,15 +1,18 @@
 package com.example.task_manager.Controller;
 
+import com.example.task_manager.DTO.TaskDTO;
 import com.example.task_manager.DTO.UserDTO;
 import com.example.task_manager.Entity.Task;
 import com.example.task_manager.Entity.User;
 import com.example.task_manager.Mapper.DTOMapper;
 import com.example.task_manager.Service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -25,16 +28,19 @@ public class UserController {
 
     // Create User
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user){
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserDTO userDTO){
+        User user = new User();
+        user.setUserName(userDTO.getUsername());
         User savedUser = userService.saveUser(user);
-        return ResponseEntity.status(201).body(savedUser);
+        return ResponseEntity.status(201).body(DTOMapper.toUserDTO(savedUser));
     }
 
 
     // Get User by Username
     @GetMapping("/username/{username}")
-    public ResponseEntity<User> getUser(@PathVariable String username){
+    public ResponseEntity<UserDTO> getUser(@PathVariable String username){
         return userService.findByUsername(username)
+                .map(DTOMapper::toUserDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -50,8 +56,9 @@ public class UserController {
 
     // Update User
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser){
-        return userService.updateUser(id, updatedUser)
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserDTO updatedUserDTO){
+        return userService.updateUser(id, updatedUserDTO)
+                .map(DTOMapper::toUserDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -73,9 +80,15 @@ public class UserController {
 
     // Get All Tasks For a USer
     @GetMapping("/{id}/tasks")
-    public ResponseEntity<List<Task>> getUserTasks(@PathVariable Long id) {
+    public ResponseEntity<List<TaskDTO>> getUserTasks(@PathVariable Long id) {
         return userService.findUserById(id)
-                .map(user -> ResponseEntity.ok(user.getTasks()))
+                .map(user -> {
+                    List<TaskDTO> taskDTOS = user.getTasks()
+                            .stream()
+                            .map(DTOMapper::toTaskDTO)
+                            .collect(Collectors.toList());
+                    return ResponseEntity.ok(taskDTOS);
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
 }
