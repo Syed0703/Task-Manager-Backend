@@ -4,16 +4,21 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "tasks")
 public class Task {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String description;
+
+    @Column(nullable = false)
     private boolean completed;
 
     // Many tasks belong to one user
-    @ManyToOne
-    @JoinColumn(name = "userId", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)  // lazy loading prevents unnecessary data fetch
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
     private User user;
 
@@ -24,6 +29,14 @@ public class Task {
     public Task(String description, boolean completed) {
         this.description = description;
         this.completed = completed;
+    }
+
+    // Full constructor (optional, useful for testing)
+    public Task(Long id, String description, boolean completed, User user) {
+        this.id = id;
+        this.description = description;
+        this.completed = completed;
+        this.user = user;
     }
 
     // Getters and Setters
@@ -51,7 +64,7 @@ public class Task {
         this.completed = completed;
     }
 
-    public User getUSer() {
+    public User getUser() {
         return user;
     }
 

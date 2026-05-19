@@ -12,6 +12,6 @@ public class DTOMapper {
     }
 
     public static TaskDTO toTaskDTO(Task task) {
-        return new TaskDTO(task.getId(), task.getDescription(), task.isCompleted(), task.getUSer().getId());
+        return new TaskDTO(task.getId(), task.getDescription(), task.isCompleted(), task.getUser().getId());
     }
 }

@@ -6,11 +6,16 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
+@Table(name = "users")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true, length = 20)
     private String username;
+
+    @Column(nullable = false)
     private String password;
 
     // One user can have many tasks
@@ -26,6 +31,14 @@ public class User {
     public User(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    // Full constructor (optional, useful for testing)
+    public User(Long id, String username, String password, List<Task> tasks) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.tasks = tasks;
     }
 
 
