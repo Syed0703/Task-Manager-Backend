@@ -11,6 +11,9 @@ public class UserDTO {
     private String username;
     // No Password Field To Hide Sensitive Data.
 
+    // Default Constructor (needed for JSON deserialization)
+    public UserDTO() {}
+
     // Constructor
     public UserDTO(Long id, String username){
         this.id = id;
@@ -24,5 +27,15 @@ public class UserDTO {
 
     public String getUsername() {
         return username;
+    }
+
+
+    //Setters
+    public void setId(Long id){
+        this.id = id;
+    }
+
+    public void setUsername(String username){
+        this.username = username;
     }
 }

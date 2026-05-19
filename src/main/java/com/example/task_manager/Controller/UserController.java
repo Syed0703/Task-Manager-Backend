@@ -57,7 +57,10 @@ public class UserController {
     // Update User
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserDTO updatedUserDTO){
-        return userService.updateUser(id, updatedUserDTO)
+        User updatedUser = new User();
+        updatedUser.setUserName(updatedUserDTO.getUsername());
+
+        return userService.updateUser(id, updatedUser)
                 .map(DTOMapper::toUserDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -67,14 +70,12 @@ public class UserController {
     // Delete User
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id){
-        Optional<User> user = userService.findUserById(id);
-        if(user.isPresent()){
-            userService.deleteUser(id);
-            return ResponseEntity.noContent().build();
-        }
-        else {
-            return ResponseEntity.notFound().build();
-        }
+        return userService.findUserById(id)
+                .map(user -> {
+                    userService.deleteUser(id);
+                    return ResponseEntity.noContent().<Void>build();
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
 

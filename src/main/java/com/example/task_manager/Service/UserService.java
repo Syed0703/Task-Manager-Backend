@@ -5,6 +5,7 @@ import com.example.task_manager.Entity.User;
 import com.example.task_manager.Repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,11 +32,15 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    // Get All Users
+    public List<User> getAllUsers(){
+        return userRepository.findAll();
+    }
+
     // Update User
     public Optional<User> updateUser(Long id, User updatedUser){
         return userRepository.findById(id).map(existingUser -> {
             existingUser.setUserName(updatedUser.getUserName());
-            existingUser.setPassword(updatedUser.getPassword());
             return userRepository.save(existingUser);
         });
     }

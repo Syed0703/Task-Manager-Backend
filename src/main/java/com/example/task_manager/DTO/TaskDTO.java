@@ -10,6 +10,8 @@ public class TaskDTO {
     private boolean completed;
     private Long userId;  // Reference To Owner
 
+    // Default Constructor (needed for JSON deserialization)
+    public TaskDTO() {}
 
     // Constructor
     public TaskDTO(Long id, String description, boolean completed, Long userId){
@@ -31,7 +33,25 @@ public class TaskDTO {
     public boolean isCompleted() {
         return completed;
     }
+
     public Long getUserId() {
         return userId;
+    }
+
+    // Setters
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }
